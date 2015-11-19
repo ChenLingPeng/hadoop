@@ -45,6 +45,10 @@ import org.apache.hadoop.yarn.server.nodemanager.DirectoryCollection.DirsChangeL
 import org.apache.hadoop.yarn.server.nodemanager.metrics.NodeManagerMetrics;
 
 /**
+ * 检查配置的local.dir和log.dir的健康情况，包括可访问性，使用率
+ */
+
+/**
  * The class which provides functionality of checking the health of the local
  * directories of a node. This specifically manages nodemanager-local-dirs and
  * nodemanager-log-dirs by periodically checking their health.

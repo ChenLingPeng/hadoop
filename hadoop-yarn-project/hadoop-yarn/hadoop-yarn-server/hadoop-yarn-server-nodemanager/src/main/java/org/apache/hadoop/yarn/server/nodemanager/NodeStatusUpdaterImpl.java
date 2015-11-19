@@ -87,6 +87,10 @@ import org.apache.hadoop.yarn.util.YarnVersionInfo;
 
 import com.google.common.annotations.VisibleForTesting;
 
+
+/**
+ * 与RM进行心跳的类
+ */
 public class NodeStatusUpdaterImpl extends AbstractService implements
     NodeStatusUpdater {
 
@@ -102,6 +106,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
   private NodeId nodeId;
   private long nextHeartBeatInterval;
+  // 与RM进行RPC的接口
   private ResourceTracker resourceTracker;
   private Resource totalResource;
   private int httpPort;
@@ -111,6 +116,8 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   private boolean tokenKeepAliveEnabled;
   private long tokenRemovalDelayMs;
   /** Keeps track of when the next keep alive request should be sent for an app*/
+  // 感觉没啥用，app进入cleanup时记录(no running)。RM收到这些app之后会在 DelegationTokenRenewer#updateKeepAliveApplications 中使用
+  // 主要是保持app的token
   private Map<ApplicationId, Long> appTokenKeepAliveMap =
       new HashMap<ApplicationId, Long>();
   private Random keepAliveDelayRandom = new Random();
@@ -118,6 +125,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   // is to avoid the misleading no-such-container exception messages on NM, when
   // the AM finishes it informs the RM to stop the may-be-already-completed
   // containers.
+  // 存储最近停止的container及过期时间（过期删除）
   private final Map<ContainerId, Long> recentlyStoppedContainers;
   // Save the reported completed containers in case of lost heartbeat responses.
   // These completed containers will be sent again till a successful response.
@@ -136,6 +144,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   private Thread  statusUpdater;
   private long rmIdentifier = ResourceManagerConstants.RM_INVALID_IDENTIFIER;
   private boolean registeredWithRM = false;
+  // 记录RM传回的需要remove的containers
   Set<ContainerId> pendingContainersToRemove = new HashSet<ContainerId>();
 
   private NMNodeLabelsHandler nodeLabelsHandler;
@@ -751,6 +760,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
                   new NodeManagerEvent(NodeManagerEventType.SHUTDOWN));
               break;
             }
+            // 重新注册
             if (response.getNodeAction() == NodeAction.RESYNC) {
               LOG.warn("Node is out of sync with ResourceManager,"
                   + " hence resyncing.");
@@ -800,7 +810,6 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
               ((NMContext) context)
                 .setSystemCrendentialsForApps(parseCredentials(systemCredentials));
             }
-
             List<org.apache.hadoop.yarn.api.records.Container>
                 containersToDecrease = response.getContainersToDecrease();
             if (!containersToDecrease.isEmpty()) {

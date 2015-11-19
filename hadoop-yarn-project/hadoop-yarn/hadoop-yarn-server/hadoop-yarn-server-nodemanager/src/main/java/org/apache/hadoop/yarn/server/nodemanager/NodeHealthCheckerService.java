@@ -22,6 +22,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.util.NodeHealthScriptRunner;
 
+
+/**
+ * NM的健康检查服务，主要借助NodeHealthScriptRunner和LocalDirsHandlerService
+ * 如果配置了NodeHealthScriptRunner，会从NodeHealthScriptRunner知道检点的健康情况
+ * 并通过LocalDirsHandlerService知道NM的磁盘情况
+ */
+
 /**
  * The class which provides functionality of checking the health of the node and
  * reporting back to the service for which the health checker has been asked to

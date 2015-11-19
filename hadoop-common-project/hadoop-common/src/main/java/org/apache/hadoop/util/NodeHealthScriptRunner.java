@@ -36,6 +36,10 @@ import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.StringUtils;
 
 /**
+ * 定时执行脚本，如果脚本输出中的任意一样以ERROR开头说明不健康
+ */
+
+/**
  * 
  * The class which provides functionality of checking the health of the node
  * using the configured node health script and reporting back to the service
